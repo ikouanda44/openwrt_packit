@@ -1,0 +1,27 @@
+name: Build OpenWRT Firmware
+
+on:
+  workflow_dispatch:  # Permet de lancer manuellement via GitHub Actions UI
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential libncurses5-dev zlib1g-dev gawk flex quilt libssl-dev xsltproc wget unzip python3
+
+      - name: Update and install feeds
+        run: |
+          ./scripts/feeds update -a
+          ./scripts/feeds install -a
+
+      - name: Compile firmware
+        run: |
+          make defconfig
+          make -j$(nproc)
