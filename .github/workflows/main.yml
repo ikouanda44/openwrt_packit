@@ -1,27 +1,36 @@
 name: Build OpenWRT Firmware
 
 on:
-  workflow_dispatch:  # Permet de lancer manuellement via GitHub Actions UI
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout repo (pour récupérer .config)
         uses: actions/checkout@v3
 
-      - name: Setup dependencies
+      - name: Clone OpenWRT source v17.01.7
+        run: git clone -b v17.01.7 https://git.openwrt.org/openwrt/openwrt.git
+
+      - name: Installer dépendances
         run: |
           sudo apt-get update
           sudo apt-get install -y build-essential libncurses5-dev zlib1g-dev gawk flex quilt libssl-dev xsltproc wget unzip python3
 
-      - name: Update and install feeds
+      - name: Copier .config dans le dossier openwrt
+        run: cp .config openwrt/.config
+
+      - name: Mettre à jour les feeds
+        working-directory: openwrt
         run: |
           ./scripts/feeds update -a
           ./scripts/feeds install -a
 
-      - name: Compile firmware
+      - name: Compiler le firmware
+        working-directory: openwrt
         run: |
           make defconfig
           make -j$(nproc)
+
