@@ -5,7 +5,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
 
     steps:
       - name: Checkout repo (pour récupérer .config)
@@ -17,7 +17,7 @@ jobs:
       - name: Installer dépendances
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential libncurses5-dev zlib1g-dev gawk flex quilt libssl-dev xsltproc wget unzip python3
+          sudo apt-get install -y build-essential gcc-multilib libncurses5-dev zlib1g-dev gawk flex quilt libssl-dev xsltproc wget unzip python3
 
       - name: Copier .config dans le dossier openwrt
         run: cp .config openwrt/.config
@@ -28,10 +28,12 @@ jobs:
           ./scripts/feeds update -a
           ./scripts/feeds install -a
 
+      - name: Nettoyer la build
+        working-directory: openwrt
+        run: make clean
+
       - name: Compiler le firmware (mode verbeux)
         working-directory: openwrt
         run: |
           make defconfig
           make -j1 V=s
-
-
