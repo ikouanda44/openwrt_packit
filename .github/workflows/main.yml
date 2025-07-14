@@ -28,9 +28,10 @@ jobs:
           ./scripts/feeds update -a
           ./scripts/feeds install -a
 
-      - name: Compiler le firmware
+      - name: Compiler le firmware (mode verbeux)
         working-directory: openwrt
         run: |
           make defconfig
-          make -j$(nproc)
+          make -j1 V=s
+
 
